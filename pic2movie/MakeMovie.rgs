@@ -1,0 +1,16 @@
+HKCR
+{
+	NoRemove CLSID
+	{
+		ForceRemove {f5fd5fa3-049f-4f80-8189-9626669aae1e} = s 'MakeMovie zupa'
+		{
+			ForceRemove Programmable
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			TypeLib = s '{30961f0c-1d71-49f2-86a6-44f67c6ed1a7}'
+			Version = s '1.0'
+		}
+	}
+}

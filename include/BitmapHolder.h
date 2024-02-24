@@ -47,7 +47,10 @@ public:
          return false;
       BITMAP& bm = *reinterpret_cast<BITMAP*>(&buffer);
       if (pixcount < unsigned(bm.bmWidth * bm.bmHeight))
+      {
+         SetLastError(ERROR_INSUFFICIENT_BUFFER);
          return false;
+      }
       COLORREF* pixels = static_cast<COLORREF*>(bm.bmBits);
       for (LONG row = 0; row < bm.bmHeight; row++)
       {
