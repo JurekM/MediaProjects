@@ -27,6 +27,14 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Install ATL headers
+        shell: pwsh
+        run: |
+          $vsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vsInstaller = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
+          $installPath = & $vsWhere -latest -products * -property installationPath
+          & $vsInstaller modify --installPath "$installPath" --add Microsoft.VisualStudio.Component.VC.ATL --passive --norestart --wait
+
       - name: Build solution
         run: >
           msbuild MediaProjects.sln
