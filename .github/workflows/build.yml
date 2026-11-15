@@ -27,13 +27,20 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Install ATL headers
+      - name: Install Visual C++ ATL toolchain
         shell: pwsh
         run: |
           $vsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
           $vsInstaller = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
           $installPath = & $vsWhere -latest -products * -property installationPath
-          & $vsInstaller modify --installPath "$installPath" --add Microsoft.VisualStudio.Component.VC.ATL --add Microsoft.VisualStudio.Component.VC.ATLMFC --passive --norestart --wait
+          & $vsInstaller modify --installPath "$installPath" \
+            --add Microsoft.VisualStudio.Workload.NativeDesktop \
+            --add Microsoft.VisualStudio.Component.VC.ATL \
+            --add Microsoft.VisualStudio.Component.VC.ATLMFC \
+            --passive --norestart --wait
+
+          $atlHeader = Join-Path $installPath "VC\Tools\MSVC\*\include\atlbase.h"
+          Get-ChildItem $atlHeader -ErrorAction Stop | Out-Null
 
       - name: Build solution
         run: >
