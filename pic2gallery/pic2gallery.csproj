@@ -4,29 +4,31 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{19AFFBC1-063C-43D9-91C2-C782D329EEEA}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>path2list</RootNamespace>
-    <AssemblyName>path2list</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <ProjectGuid>{F13A5AE8-C734-492C-8D08-7B556CA9AAA4}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>pic2gallery</RootNamespace>
+    <AssemblyName>pic2gallery</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <IntermediateOutputPath>..\..\__int\MediaProjects\path2list\$(Configuration)\</IntermediateOutputPath>
-    <OutputPath>..\..\__binaries\MediaProjects\path2list-$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\__int\MediaProjects\pic2gallery-$(Configuration)\</IntermediateOutputPath>
+    <OutputPath>..\..\__binaries\MediaProjects\pic2gallery-Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <IntermediateOutputPath>..\..\__int\MediaProjects\path2list\$(Configuration)\</IntermediateOutputPath>
-    <OutputPath>..\..\__binaries\MediaProjects\path2list-$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>..\..\__int\MediaProjects\pic2gallery-$(Configuration)\</IntermediateOutputPath>
+    <OutputPath>..\..\__binaries\MediaProjects\pic2gallery-Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -42,8 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="path2list.cs" />
+    <Compile Include="HtmlGenerator.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

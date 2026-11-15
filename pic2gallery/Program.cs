@@ -1,16 +1,15 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
 
-namespace Demo1
+namespace pic2gallery
 {
     class Program
     {
         static int Main(string[] args)
         {
-            if (args.Length != 2 && args.Length != 3)
+            if (args.Length < 2 || args.Length > 4)
             {
-                Console.WriteLine("Syntax: Demo1 <inputfile> <outputfile> [.|root] [yyyymmdd]");
+                Console.WriteLine("Syntax: pic2gallery <inputfile> <outputfile> [.|root] [yyyymmdd]");
                 return 1;
             }
             string inpath = args[0];

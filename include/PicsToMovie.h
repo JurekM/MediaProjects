@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atlbase.h>
+
 class PicsToMovie
 {
 public:
@@ -12,7 +14,7 @@ public:
       virtual void log(const wchar_t* message) = 0;
    };
 
-   // Kush gauge: pixel_count x motion_factor x 0.07 ÷ 1000 = bit rate in kbps
+   // Kush gauge: pixel_count x motion_factor x 0.07 ï¿½ 1000 = bit rate in kbps
    //  Low motion 5fps, 1280 x 720: 1280 x 720 = 921,600 pixel count; 5fps; 1 = Low Motion
    //    (921, 600 x 5) x 1 x 0.07 = 322, 560 bps / 1000 = 322 kbps bitrate
    //  Action shot 24fps, 1920 x 1080: 1920 x 1080 = 2,073,600 pixel count; 24fps; 4 = High Motion;
