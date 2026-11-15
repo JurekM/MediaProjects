@@ -1,0 +1,61 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [x64, x86]
+        configuration: [Release]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build solution
+        run: >
+          msbuild MediaProjects.sln
+          /m
+          /p:Configuration=${{ matrix.configuration }}
+          /p:Platform=${{ matrix.platform }}
+          /verbosity:minimal
+
+      - name: Collect artifacts
+        shell: pwsh
+        run: |
+          $artifactRoot = Join-Path $env:RUNNER_TEMP "artifacts-${{ matrix.platform }}"
+          New-Item -ItemType Directory -Force -Path $artifactRoot | Out-Null
+
+          $candidateDirs = @(
+            "$env:GITHUB_WORKSPACE\__binaries",
+            "$env:GITHUB_WORKSPACE\..\__binaries"
+          )
+
+          foreach ($dir in $candidateDirs) {
+            if (Test-Path $dir) {
+              Copy-Item -Path $dir -Destination $artifactRoot -Recurse -Force
+            }
+          }
+
+          $files = Get-ChildItem -Path $artifactRoot -Recurse -File -ErrorAction SilentlyContinue
+          if (-not $files) {
+            throw "No build artifacts were found under expected __binaries paths."
+          }
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-${{ matrix.platform }}-${{ matrix.configuration }}
+          path: ${{ runner.temp }}/artifacts-${{ matrix.platform }}

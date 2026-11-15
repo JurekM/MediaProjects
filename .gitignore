@@ -3,6 +3,15 @@
 
 #Visual Studio Files
 *.user
+*.suo
+*.VC.db
+*.VC.opendb
+
+# Build output directories
+__binaries/
+__int/
+bin/
+obj/
 
 # Prerequisites
 *.d
