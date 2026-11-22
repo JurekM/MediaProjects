@@ -227,7 +227,7 @@ void PicsToMovie::clear()
    _isStarted = false;
 
    if (_pSinkWriter)
-      _pSinkWriter.Reset();
+      _pSinkWriter.Release();
    _pSinkWriter = nullptr;
 }
 

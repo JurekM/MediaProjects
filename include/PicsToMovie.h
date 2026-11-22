@@ -1,9 +1,6 @@
 #pragma once
 
-#include <wrl/client.h>
-
-template <typename T>
-using CComPtr = Microsoft::WRL::ComPtr<T>;
+#include <atlbase.h>
 
 class PicsToMovie
 {
