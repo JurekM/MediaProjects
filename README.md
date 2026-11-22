@@ -2,7 +2,7 @@
 
 Windows utilities for creating MP4 previews and HTML galleries from camera images.
 
-These utilities were written to work with images from Foscam motion-detection cameras. `pic2video` creates MP4 previews from JPEG images, while `pic2gallery` generates HTML galleries using information parsed from Foscam-style filenames. You may find the utilitiesâ€”or parts of their codeâ€”useful in your own projects.
+These utilities were written to work with images from Foscam motion-detection cameras. `pic2video` creates MP4 previews from JPEG images, while `pic2gallery` generates HTML galleries using information parsed from Foscam-style filenames. You may find the utilities, or parts of their code, useful in your own projects.
 
 The original workflow was to preview a folder of motion-detection images as a video, then inspect individual images in a gallery. Selecting and deleting images is a manual step; these tools only generate the previews.
 
