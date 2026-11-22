@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - master
+      - codex/**
   pull_request:
   workflow_dispatch:
 
@@ -13,7 +14,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2025
     strategy:
       fail-fast: false
       matrix:
@@ -24,27 +25,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Install Visual C++ ATL toolchain
+      - name: Verify Visual Studio 2026 and ATL
         shell: pwsh
         run: |
+          $ErrorActionPreference = 'Stop'
           $vsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-          $vsInstaller = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
-          $installPath = & $vsWhere -latest -products * -property installationPath
-          & $vsInstaller modify --installPath "$installPath" --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Component.VC.ATL --add Microsoft.VisualStudio.Component.VC.ATLMFC --passive --norestart --wait
-
-          $atlHeader = Join-Path $installPath "VC\Tools\MSVC\*\include\atlbase.h"
-          Get-ChildItem $atlHeader -ErrorAction Stop | Out-Null
+          $installPath = & $vsWhere -latest -products * -version '[18.0,19.0)' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $installPath) {
+            throw 'Visual Studio 2026 with the x86/x64 C++ tools was not found.'
+          }
+          $versionFile = Join-Path $installPath 'VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.txt'
+          $toolsVersion = (Get-Content $versionFile -Raw).Trim()
+          $atlHeader = Join-Path $installPath "VC\Tools\MSVC\$toolsVersion\atlmfc\include\atlbase.h"
+          if (-not (Test-Path -LiteralPath $atlHeader)) {
+            throw "ATL is missing for MSVC $toolsVersion. Expected: $atlHeader"
+          }
+          $msbuild = Join-Path $installPath 'MSBuild\Current\Bin\MSBuild.exe'
+          Write-Host "Visual Studio: $installPath"
+          Write-Host "MSVC: $toolsVersion; platform toolset: v145"
+          Write-Host "ATL: $atlHeader"
+          "MEDIA_MSBUILD=$msbuild" >> $env:GITHUB_ENV
 
       - name: Build solution
-        run: >
-          msbuild MediaProjects.sln
-          /m
-          /p:Configuration=${{ matrix.configuration }}
-          /p:Platform=${{ matrix.platform }}
-          /verbosity:minimal
+        shell: pwsh
+        run: |
+          & $env:MEDIA_MSBUILD MediaProjects.sln /m /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /verbosity:minimal /nologo
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Collect artifacts
         shell: pwsh
@@ -52,20 +58,19 @@ jobs:
           $artifactRoot = Join-Path $env:RUNNER_TEMP "artifacts-${{ matrix.platform }}"
           New-Item -ItemType Directory -Force -Path $artifactRoot | Out-Null
 
-          $candidateDirs = @(
-            "$env:GITHUB_WORKSPACE\__binaries",
-            "$env:GITHUB_WORKSPACE\..\__binaries"
+          $nativePlatform = if ('${{ matrix.platform }}' -eq 'x86') { 'Win32' } else { 'x64' }
+          $outputRoot = Join-Path (Split-Path $env:GITHUB_WORKSPACE -Parent) '__binaries\MediaProjects'
+          $projectDirs = @(
+            "pic2video-$nativePlatform-${{ matrix.configuration }}",
+            "pic2gallery-${{ matrix.configuration }}"
           )
-
-          foreach ($dir in $candidateDirs) {
-            if (Test-Path $dir) {
-              Copy-Item -Path $dir -Destination $artifactRoot -Recurse -Force
+          foreach ($projectDir in $projectDirs) {
+            $source = Join-Path $outputRoot $projectDir
+            $executable = if ($projectDir.StartsWith('pic2video-')) { 'pic2video.exe' } else { 'pic2gallery.exe' }
+            if (-not (Test-Path -LiteralPath (Join-Path $source $executable))) {
+              throw "Expected build output missing: $source\$executable"
             }
-          }
-
-          $files = Get-ChildItem -Path $artifactRoot -Recurse -File -ErrorAction SilentlyContinue
-          if (-not $files) {
-            throw "No build artifacts were found under expected __binaries paths."
+            Copy-Item -LiteralPath $source -Destination $artifactRoot -Recurse -Force
           }
 
       - name: Upload artifacts
@@ -73,3 +78,4 @@ jobs:
         with:
           name: binaries-${{ matrix.platform }}-${{ matrix.configuration }}
           path: ${{ runner.temp }}/artifacts-${{ matrix.platform }}
+          if-no-files-found: error
